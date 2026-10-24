@@ -1,0 +1,21 @@
+{
+  "name": "morningstar-flagship-ai",
+  "version": "1.0.0",
+  "description": "晨星·旗舰 AI 引擎 —— 零依赖、零构建、Float64 全精度的深度学习与经典机器学习引擎（自动微分 + Transformer/GPT + PCA/KMeans/GMM/NB/LR/CART + 43 项可验证不变量）",
+  "author": "晨星 (Morning Star)",
+  "license": "MIT",
+  "main": "src/engine.js",
+  "scripts": {
+    "test": "node test/verify.js",
+    "smoke": "node test/smoke-browser.js",
+    "build": "node scripts/build.js",
+    "verify": "node test/verify.js && node test/smoke-browser.js && node scripts/build.js"
+  },
+  "keywords": [
+    "ai", "deep-learning", "autograd", "automatic-differentiation",
+    "transformer", "gpt", "attention", "adam", "adamw",
+    "pca", "kmeans", "gmm", "em", "naive-bayes", "logistic-regression",
+    "decision-tree", "zero-dependency", "javascript", "晨星"
+  ],
+  "engines": { "node": ">=16" }
+}

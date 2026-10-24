@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>晨星·旗舰 AI 引擎 — 零依赖深度学习与经典机器学习实验室</title>
+<style>
+  :root {
+    --bg: #070b11; --panel: #0f1620; --panel2: #0b111a; --line: #1c2838;
+    --txt: #e6edf3; --dim: #8b9cb1; --ok: #4ade80; --bad: #f87171;
+    --blue: #60a5fa; --amber: #fbbf24; --pink: #f472b6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--txt);
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+  }
+  code, .mono { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
+  header {
+    padding: 22px 28px 16px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #0d1520, #070b11);
+  }
+  h1 { margin: 0; font-size: 22px; letter-spacing: .5px; }
+  h1 small { color: var(--dim); font-weight: 400; font-size: 13px; margin-left: 10px; }
+  .sub { color: var(--dim); font-size: 13px; margin-top: 6px; }
+  .badges { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge {
+    font-size: 12px; padding: 3px 9px; border: 1px solid var(--line);
+    border-radius: 999px; color: var(--dim); background: #0d1420;
+  }
+  .badge b { color: var(--ok); }
+  main { padding: 20px 28px 40px; max-width: 1280px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .card h2 .tag { font-size: 11px; color: var(--amber); border: 1px solid #3a3416; background: #1a170a; padding: 1px 7px; border-radius: 6px; }
+  .card .desc { color: var(--dim); font-size: 12.5px; margin: 0 0 12px; }
+  .ctrls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  select, button {
+    background: #16202e; color: var(--txt); border: 1px solid var(--line);
+    border-radius: 7px; padding: 6px 10px; font-size: 12.5px; cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+  button:disabled { opacity: .55; cursor: default; }
+  label { font-size: 12.5px; color: var(--dim); }
+  canvas {
+    width: 100%; height: 200px; display: block; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--panel2);
+  }
+  canvas.small { height: 92px; margin-top: 8px; }
+  .status { font-size: 12.5px; color: var(--dim); margin-top: 8px; }
+  .status b { color: var(--ok); }
+  .sample {
+    margin-top: 10px; padding: 10px 12px; background: var(--panel2);
+    border: 1px solid var(--line); border-radius: 8px; font-size: 13px;
+    font-family: ui-monospace, Consolas, monospace; min-height: 44px; color: #cfe3ff;
+    word-break: break-all;
+  }
+  .kv { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; padding: 3px 0; border-bottom: 1px dashed #16202e; }
+  .kv span { color: var(--dim); }
+  .kv b { font-family: ui-monospace, Consolas, monospace; font-weight: 500; }
+  #selftest-out { max-height: 460px; overflow: auto; margin-top: 10px; }
+  .grp { margin: 10px 0 4px; font-size: 12px; color: var(--amber); letter-spacing: .5px; }
+  .row { display: flex; gap: 8px; font-size: 12px; padding: 2px 0; align-items: baseline; }
+  .row .nm { min-width: 210px; }
+  .row .dt { color: var(--dim); font-family: ui-monospace, Consolas, monospace; }
+  .row.bad .nm, .row.bad .dt { color: var(--bad); }
+  .hint { color: var(--dim); font-size: 12.5px; }
+  .fail { color: var(--bad); }
+  .ok { color: var(--ok); }
+  footer {
+    border-top: 1px solid var(--line); padding: 18px 28px 40px; color: var(--dim); font-size: 12.5px;
+  }
+  footer a { color: var(--blue); text-decoration: none; }
+  .lin { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>晨星·旗舰 AI 引擎 <small>MorningStar Flagship AI · 零依赖 · 零构建 · Float64 全精度</small></h1>
+  <div class="sub">从反向模式自动微分到 Transformer/GPT，再到 PCA / KMeans++ / GMM(EM) —— 全部单文件可验证实现，作者：晨星</div>
+  <div class="badges">
+    <span class="badge">自动微分 <b>反向模式</b></span>
+    <span class="badge">梯度检验 <b>1e-9 量级</b></span>
+    <span class="badge">Transformer <b>GPT-2 Pre-LN</b></span>
+    <span class="badge">优化器 <b>Adam / AdamW</b></span>
+    <span class="badge">经典算法 <b>6 类</b></span>
+    <span class="badge">验证 <b>43/43</b></span>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- 1. 迷你 GPT -->
+    <section class="card">
+      <h2>① 迷你 GPT 字符级语言模型 <span class="tag">Transformer</span></h2>
+      <p class="desc">完整 GPT 架构微缩版：词元嵌入 + 位置嵌入 → 多头因果自注意力 → Pre-LN 残差块 → LayerNorm → 线性头。右表为实时交叉熵。</p>
+      <div class="ctrls">
+        <label>步数
+          <select id="sel-steps">
+            <option value="100">100</option>
+            <option value="300" selected>300</option>
+            <option value="800">800</option>
+          </select>
+        </label>
+        <label>学习率
+          <select id="sel-lr">
+            <option value="0.001">1e-3</option>
+            <option value="0.003" selected>3e-3</option>
+            <option value="0.01">1e-2</option>
+          </select>
+        </label>
+        <label>随机种子
+          <select id="sel-seed">
+            <option value="42" selected>42</option>
+            <option value="7">7</option>
+            <option value="2026">2026</option>
+          </select>
+        </label>
+        <button id="btn-train">开始训练</button>
+      </div>
+      <canvas id="loss-canvas" width="640" height="400"></canvas>
+      <div class="status" id="lm-arch"></div>
+      <div class="status" id="lm-status">等待开始…（同种子结果完全可复现）</div>
+      <div class="sample" id="lm-sample">（训练结束后生成）</div>
+    </section>
+
+    <!-- 2. PCA -->
+    <section class="card">
+      <h2>② PCA 降维实验室 <span class="tag">Jacobi 特征分解</span></h2>
+      <p class="desc">协方差矩阵经循环 Jacobi 旋转求特征对；下方实时读出主成分正交性与特征值残差 —— 这两条正是验证套件里的硬不变量。</p>
+      <div class="ctrls"><button id="btn-pca">重新生成数据</button></div>
+      <canvas id="pca-canvas" width="640" height="400"></canvas>
+      <div id="pca-stats" style="margin-top:10px"></div>
+    </section>
+
+    <!-- 3. 聚类 -->
+    <section class="card">
+      <h2>③ 聚类实验室 <span class="tag">KMeans++ / EM</span></h2>
+      <p class="desc">KMeans 用 k-means++ 初始化 + 多次重启取最小 SSE；GMM 在对数域用 EM 迭代，对数似然单调不减（EM 定理的可验证形式）。</p>
+      <div class="ctrls"><button id="btn-clu">重新生成数据</button></div>
+      <canvas id="clu-canvas" width="640" height="400"></canvas>
+      <canvas id="ll-canvas" class="small" width="640" height="184"></canvas>
+      <div id="clu-stats" style="margin-top:10px"></div>
+    </section>
+
+    <!-- 4. 自检 -->
+    <section class="card">
+      <h2>④ 浏览器内一键自检 <span class="tag">与 Node 同源</span></h2>
+      <p class="desc">执行与 <code>node test/verify.js</code> 完全相同的套件：中心差分 vs 解析梯度、数值稳定性、优化器收敛、六大经典算法不变量、端到端训练与确定性。</p>
+      <div class="ctrls"><button id="btn-selftest">运行自检</button></div>
+      <div class="status" id="selftest-summary"></div>
+      <div id="selftest-out"><div class="hint">点击上方按钮开始。</div></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div>数学血统：反向模式自动微分（Baydin et al. 2018）· Transformer（Vaswani et al. 2017）· GPT-2 Pre-LN（Radford et al. 2019）·
+    He/Xavier 初始化 · GELU（Hendrycks & Gimpel 2016）· LayerNorm（Ba et al. 2016）· Adam（Kingma & Ba 2015）·
+    AdamW（Loshchilov & Hutter 2019）· PCA/Jacobi · Lloyd KMeans + k-means++（Arthur & Vassilvitskii 2007）·
+    EM（Dempster et al. 1977）· CART（Breiman et al. 1984）</div>
+  <div class="lin">
+    <span>MIT License</span><span>© 晨星（Morning Star）</span>
+    <span>零依赖 · 零构建 · 浏览器与 Node 双端同构</span>
+  </div>
+</footer>
+
+<script src="src/engine.js"></script>
+<script src="src/utils.js"></script>
+<script src="src/losses.js"></script>
+<script src="src/optim.js"></script>
+<script src="src/modules.js"></script>
+<script src="src/classical.js"></script>
+<script src="test/verify.js"></script>
+<script src="src/demo.js"></script>
+</body>
+</html>
